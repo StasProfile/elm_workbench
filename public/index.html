@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f3f3ee" />
+    <title>R230 · Диагностическая мастерская</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <aside class="sidebar">
+      <a class="brand" href="#overview"
+        ><span class="brand-mark">R</span
+        ><span>R230<span class="brand-sub">DIAGNOSTIC WORKBENCH</span></span></a
+      >
+      <div class="car-id">
+        <span class="eyebrow">ВАШ АВТОМОБИЛЬ</span><strong>SL 500</strong
+        ><span>2002 · M113 · R230</span>
+      </div>
+      <nav aria-label="Разделы">
+        <a class="nav-link active" href="#overview"
+          ><span>01</span> Подключение</a
+        >
+        <a class="nav-link" href="#systems"><span>02</span> Кузовные системы</a>
+        <a class="nav-link" href="#journal"><span>03</span> Журнал обмена</a>
+        <a class="nav-link" href="#archive"
+          ><span>04</span> Сохранённые сеансы</a
+        >
+      </nav>
+      <div class="sidebar-footer">
+        <span class="local-dot"></span> Только на этом Mac<span
+          >Без облака. Без интернета.</span
+        ><span class="version">WORKBENCH / 0.1</span>
+      </div>
+    </aside>
+    <main>
+      <header class="topbar">
+        <span class="breadcrumb">МАСТЕРСКАЯ <span>/</span> SL 500</span>
+        <div class="connection-pill" id="connection">
+          <i></i><span>ELM не подключён</span>
+        </div>
+      </header>
+      <section id="overview" class="section">
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow orange">ОДИН СЕАНС · СОХРАНЁННЫЕ ФАКТЫ</p>
+            <h1>Кузовная диагностика.<br /><span>Подготовим доступ.</span></h1>
+            <p class="intro">
+              Сиденья, пневматика, аудио и подвеска.<br />Проверка адаптера и
+              наблюдения — в одном отчёте.
+            </p>
+          </div>
+          <div class="session-tag">
+            <span class="eyebrow">ТЕКУЩИЙ СЕАНС</span
+            ><strong id="session-time">Ещё не создан</strong
+            ><span id="session-status">Все данные сохраняются локально</span>
+          </div>
+        </div>
+        <div class="limitation">
+          <span class="notice-icon">i</span>
+          <div>
+            <strong>Кузовные блоки пока не опрашиваются</strong>
+            <p>
+              У этого ELM не подтверждены нужные физические линии и профиль
+              Mercedes. Этот прогон проверяет адаптер и собирает ваши
+              наблюдения. Он не читает ошибки сидений, COMAND или ABC.
+            </p>
+          </div>
+          <span class="tag">БЕЗ ЗАПРОСОВ К ЭБУ</span>
+        </div>
+        <div class="overview-grid">
+          <section class="panel setup-panel">
+            <div class="panel-title">
+              <span class="eyebrow">01 / ПОДКЛЮЧЕНИЕ</span
+              ><span id="mode-badge" class="tag">АДАПТЕР</span>
+            </div>
+            <h2>Выберите источник</h2>
+            <div class="segmented" role="group" aria-label="Источник данных">
+              <button class="selected" id="real-mode">Мой ELM</button
+              ><button id="mock-mode">Mock · без машины</button>
+            </div>
+            <p class="source-hint" id="source-hint">
+              Mac должен быть подключён к Wi-Fi адаптера.
+            </p>
+            <label class="environment-label"
+              >Где подключён адаптер<select id="environment">
+                <option value="car">В автомобиле</option>
+                <option value="bench">На столе · внешнее питание 12 В</option>
+              </select></label
+            >
+            <div class="endpoint">
+              <label
+                >IP-адрес<input
+                  id="host"
+                  value="192.168.0.10"
+                  inputmode="decimal"
+                  spellcheck="false"
+                  aria-label="IP-адрес ELM" /></label
+              ><label
+                >Порт<input
+                  id="port"
+                  value="35000"
+                  type="number"
+                  min="1"
+                  max="65535"
+                  aria-label="TCP-порт ELM"
+              /></label>
+            </div>
+            <div class="action-row">
+              <button class="primary" id="start">
+                Подключить и проверить <span>↗</span></button
+              ><button class="stop-button" id="stop" disabled>Стоп</button>
+            </div>
+            <p class="setup-footnote" id="setup-instructions">
+              Автомобиль стоит. Зажигание включено, двигатель заглушён. Другие
+              приложения ELM закрыты.
+            </p>
+            <div class="progress-caption">
+              <span id="step-title">Готов к подключению</span
+              ><span id="step-count">0 / 22</span>
+            </div>
+            <progress
+              id="progress"
+              max="22"
+              value="0"
+              aria-label="Ход проверки"
+            ></progress>
+          </section>
+          <div class="instrument-grid">
+            <div class="metric panel">
+              <span class="eyebrow">НАПРЯЖЕНИЕ ELM</span>
+              <div class="metric-value" id="voltage">— <small>V</small></div>
+              <div class="metric-bottom">
+                <span id="voltage-note">На входе адаптера</span
+                ><button
+                  id="measure"
+                  disabled
+                  title="Однократно прочитать напряжение"
+                >
+                  Обновить ↻
+                </button>
+              </div>
+              <svg
+                id="sparkline"
+                viewBox="0 0 280 38"
+                role="img"
+                aria-label="История напряжения"
+              >
+                <path
+                  d="M0 30 H280"
+                  fill="none"
+                  stroke="#dfdfd7"
+                  stroke-width="1"
+                />
+              </svg>
+            </div>
+            <div class="metric panel">
+              <span class="eyebrow">ЗАЯВЛЕННАЯ ПРОШИВКА</span>
+              <div class="adapter-value" id="firmware">Ожидание связи</div>
+              <p class="muted" id="adapter-description">
+                Kingbolen · Wi-Fi · PIC18F25K80 по маркировке
+              </p>
+            </div>
+            <div class="metric panel">
+              <span class="eyebrow">НАСТРОЙКИ ПРОТОКОЛОВ</span>
+              <div class="capability-list" id="capabilities">
+                <span class="empty-label"
+                  >Будет проверено принятие настроек ISO / KWP</span
+                >
+              </div>
+              <p class="small muted">
+                Принятая настройка не подтверждает физическую связь с блоком.
+              </p>
+            </div>
+            <div class="metric panel">
+              <span class="eyebrow">ЗАПРОСЫ К БЛОКАМ МАШИНЫ</span>
+              <div class="metric-value">0 <small>запросов</small></div>
+              <p class="muted small">
+                В этом профиле нет кодирования, сброса ошибок, адаптаций и
+                активаций.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div id="demo-warning" class="demo-warning" hidden>
+          MOCK · Синтетические ответы. Этот сеанс не содержит измерений
+          автомобиля.
+        </div>
+        <div id="result" class="result" hidden></div>
+      </section>
+      <section id="systems" class="section systems-section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">02 / НАБЛЮДЕНИЯ ПО СИСТЕМАМ</p>
+            <h2>То, что поможет следующему шагу</h2>
+          </div>
+          <span class="tag" id="notes-state">Сначала создайте сеанс</span>
+        </div>
+        <p class="section-description">
+          Запишите фактическое поведение и точные сообщения. Фото экрана, кнопок
+          и маркировок можно приложить без разборки. Наблюдения не заменяют
+          чтение памяти ошибок.
+        </p>
+        <div class="system-grid" id="systems-grid"></div>
+        <section class="panel report-panel">
+          <div>
+            <p class="eyebrow">КОНТЕКСТ СЕАНСА</p>
+            <label class="vin-label"
+              >VIN автомобиля<input
+                id="vin"
+                maxlength="17"
+                placeholder="Можно заполнить перед экспортом"
+                spellcheck="false"
+                disabled /></label
+            ><label
+              >Общие примечания<textarea
+                id="notes"
+                placeholder="Например, что произошло перед появлением симптомов"
+                disabled
+              ></textarea>
+            </label>
+            <p class="muted small">
+              VIN и фотографии остаются в локальном отчёте. Автоматической
+              отправки нет.
+            </p>
+          </div>
+          <div class="export-area">
+            <span class="export-icon">↗</span>
+            <h3>Один файл для разбора</h3>
+            <p>
+              ZIP содержит отчёт, исходный журнал обмена, наблюдения и
+              фотографии. Данные сохраняются на диске после каждого шага.
+            </p>
+            <button class="primary" id="download" disabled>
+              Скачать пакет ZIP <span>↓</span></button
+            ><button class="text-button" id="save" disabled>
+              Сохранить наблюдения
+            </button>
+          </div>
+        </section>
+      </section>
+      <section id="journal" class="section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">03 / ЖУРНАЛ ОБМЕНА</p>
+            <h2>Каждая команда. Каждый ответ.</h2>
+          </div>
+          <label class="follow-label"
+            ><input id="follow" type="checkbox" checked /> Следить за
+            журналом</label
+          >
+        </div>
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span><i></i><i></i><i></i></span><span>ELM / TCP / ASCII</span
+            ><span id="event-count">0 событий</span>
+          </div>
+          <pre id="log" aria-label="Журнал обмена" tabindex="0">
+Сеанс ещё не начат. Здесь появятся исходные ответы ELM.</pre
+          >
+        </div>
+      </section>
+      <section id="archive" class="section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">04 / АРХИВ</p>
+            <h2>Сеансы на этом ноутбуке</h2>
+          </div>
+        </div>
+        <div class="panel archive-list" id="sessions">
+          <p class="muted">Сохранённых сеансов пока нет.</p>
+        </div>
+      </section>
+      <footer>
+        <span>R230 / DIAGNOSTIC WORKBENCH</span
+        ><span>Проверенные данные · Явные ограничения</span>
+      </footer>
+    </main>
+    <div id="toast" role="status" hidden></div>
+  </body>
+</html>
